@@ -135,6 +135,7 @@ con_table_dplyr = metalworks |>
     values_from = n
   )
 
+## This one not put text on each color fill of defective
 ggplot(metalworks,aes(x=shift,fill=defective)) +
   geom_bar() +
   labs(
@@ -144,9 +145,17 @@ ggplot(metalworks,aes(x=shift,fill=defective)) +
   ) +
   theme_minimal()
 
-
-
-
+## This one put text on each color fill of defective
+ggplot(metalworks, aes(x = shift, fill = defective)) +
+  geom_bar() +
+  geom_text(stat = "count", aes(label = ..count..), 
+            position = position_stack(vjust = 0.5)) +
+  labs(
+    title = "Shift vs Defective",
+    x = "Shift",
+    y = "Number of components"
+  ) +
+  theme_minimal()
 
 
 
