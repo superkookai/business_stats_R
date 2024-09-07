@@ -1,0 +1,1 @@
+This is the repository of studying Business Statistics Communication with Numbers by using R programming language.
