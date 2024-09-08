@@ -158,6 +158,119 @@ ggplot(metalworks, aes(x = shift, fill = defective)) +
   theme_minimal()
 
 
+## Exercise 2.3 - 35
+## data
+
+## use sample function with weights
+# numbers = 400:900
+# weights = seq(1, length(numbers))
+# weights = weights / sum(weights)
+# texts_vector = sample(numbers,150,prob=weights,replace = TRUE)
+
+## use rnorm function 
+texts_vector <- rnorm(150, mean = 700, sd = 80)
+texts_vector <- pmax(400, pmin(900, round(texts_vector)))
+
+weekly_text_messages = tibble(
+  teen = 1:150,
+  texts = texts_vector
+)
+
+freq_table = weekly_text_messages |> 
+  mutate(
+    class = case_when(
+      texts > 400 & texts <= 500 ~ "400 up to 500",
+      texts > 500 & texts <= 600 ~ "500 up to 600",
+      texts > 600 & texts <= 700 ~ "600 up to 700",
+      texts > 700 & texts <= 800 ~ "700 up to 800",
+      texts > 800 & texts <= 900 ~ "800 up to 900"
+    )
+  ) |> 
+  group_by(class) |> 
+  summarise(
+    freq = n()
+  ) |> 
+  mutate(
+    rela_freq = freq / sum(freq),
+    cumu_rela_freq = cumsum(rela_freq)
+  )
+
+## Create beautiful frequency table
+library(gt)
+freq_table |> 
+  gt() |> 
+  tab_header(title = "Relative Frequency Distribution of Number of Text messages") |> 
+  cols_label(freq = "Frequency", rela_freq = "Relative Freq", cumu_rela_freq = "Cumulative Relative Freq") |> 
+  cols_align(align = "center", columns = everything()) |> 
+  fmt_number(columns = c(rela_freq,cumu_rela_freq), decimals = 2) |> 
+  cols_width(freq ~ px(50), rela_freq ~ px(100), cumu_rela_freq ~ px(100))
+
+## Create Ogive Chart
+ogive_data = tibble(
+  class_upper = c(400,500,600,700,800,900),
+  cumu_rela_freq = c(0,0.01,0.13,0.52,0.91,1)
+) 
+
+ggplot(ogive_data, aes(x=class_upper,y=round(cumu_rela_freq*100))) +
+  geom_line() +
+  geom_point(shape=18,size=5,color="red") +
+  geom_vline(xintercept = 850, linetype="dashed", color = "blue") +
+  geom_hline(yintercept = 95, linetype="dashed", color = "blue") +
+  labs(
+    title = "Ogive chart for % Number of text messages",
+    x = "Number of Text Messages",
+    y = "% Percent of usage"
+  ) +
+  annotate("text",label="Below 95%",x=420,y=97) +
+  annotate("text",label="850 messages",x=790,y=5)
+
+## Create Histogram
+ggplot(weekly_text_messages, aes(x=texts)) +
+  geom_histogram(bins=5,binwidth=100,fill="lightblue",color="gray") +
+  stat_bin(binwidth = 100, geom = "text", aes(label = ..count.., y = ..count..), vjust = -0.5) +
+  labs(
+    title = "Histogram of number of text messages distribution",
+    x = "Number of Text Messages",
+    y = "Frequency"
+  )
+
+## Create Histogram with Bar Chart
+ggplot(freq_table, aes(x=class,y=freq)) +
+  geom_bar(stat = "identity",width = 1.0,color="black",fill="lightblue") +
+  geom_text(aes(label=freq,vjust=-0.5)) +
+  labs(
+    title = "Histogram of number of text messages distribution",
+    x = "Range of messages",
+    y = "Frequency"
+  )
+
+
+### Example Scatterplot with Categorical varibale
+ggplot(mpg,aes(x=hwy,y=cty)) +
+  geom_point(aes(color=class,shape=class),size=2) +
+  geom_smooth(se = FALSE) +
+  theme_minimal()
+
+### Example of compare Line charts
+BOD2 = tibble(
+  time = c(1,2,3,5,6,7),
+  demand = c(11.3,6.7,18.5,14.3,8.8,10.5)
+)
+ggplot(BOD,aes(x=Time,y=demand)) +
+  geom_line(color="red") +
+  geom_line(data=BOD2, aes(x=time,y=demand),color="blue",linetype="dashed")
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
