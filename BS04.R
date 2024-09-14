@@ -22,6 +22,12 @@ fitness_contingency_table = fitness_table |>
     names_from = Age_Group,
     values_from = freq
   )
+# Create columns sum/ row sums for Contingency Table
+col_sums = colSums(fitness_contingency_table[,2:4])
+fitness_contingency_table = rbind(fitness_contingency_table,col_sums)
+row_sums = rowSums(fitness_contingency_table[,2:4])
+fitness_contingency_table$Total_Outcome = row_sums
+fitness_contingency_table$Outcome = coalesce(fitness_contingency_table$Outcome, "Total_Age")
 
 # Create Joint probability table
 fitness_joint_prob_table = fitness_table |> 
@@ -33,6 +39,26 @@ fitness_joint_prob_table = fitness_table |>
     names_from = Age_Group,
     values_from = prob
   )
-  
+# Create columns sum/ row sums for Joint Probability Table  
+col_sums = colSums(fitness_joint_prob_table[,2:4])
+fitness_joint_prob_table = rbind(fitness_joint_prob_table,col_sums)
+row_sums = rowSums(fitness_joint_prob_table[,2:4])
+fitness_joint_prob_table$Total_Outcome = row_sums
+fitness_joint_prob_table$Outcome = coalesce(fitness_joint_prob_table$Outcome, "Total_Age")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
