@@ -122,9 +122,111 @@ ggplot(complaints_table,aes(x=month,y=prob_complaints)) +
 ## b. Can you justify the corporation’s decision to direct customers to call centers outside of Country X?
 ## Ans: Yes, I recommend company to direct customers to call centers outside of Country X, due to the trends is in within UCL and LCL.
 
+### Case Study Report 7.1
+p_pop = 7.9/100
+sd_pop = 1.4/100
+n1 = 160
+p1 = 8.18/100
+n2 = 40
+p2 = 8.3/100
+
+## Which of the two samples is likely to be more representative of the United States as a whole?
+## Check for Normal distribution approximation of these two samples -> n*p>=5 and n*(1-p)>=5
+# Sample1
+n1*p_pop ## = 12.64
+n1*(1-p_pop) ## = 147.36
+#Sample2
+n2*p_pop ## = 3.16
+n2*(1-p_pop) ## = 36.84
+## Sample1 is approximate normal distribution but not Sample2
+
+## Sample1 -> Find P(P_bar>p1) 
+se_p1 = sqrt(p*(1-p)/n1) ## = 0.02822897
+pnorm(p1,p,se_p1,lower.tail = FALSE) ## Ans = 0.9921531
+
+## Sample2 -> Find P(P_bar>p2) if it is not approximate Normal distribution
+se_p2 = sqrt(p*(1-p)/n2) ## 0.05645795
+pnorm(p2,p,se_p2,lower.tail = FALSE) ## 0.8823317
+
+## Conclude = Sample1 is likely to be more representative of US as a whole with 99.21% Probability that Average saving rate is 8.18%
 
 
+### Additional Exercise - 64
+p = 0.1
 
+## a. What is the probability that the production machines will be adjusted if the batch consists of 50 items?
+## Find P(P_bar>0.15) by n=50
+n=50
+## Check for this distribution is approximating Normally distributed -> n*p>=5 and n*(1-p)>=5
+n*p ## 5
+n*(1-p) ## 45
+## Ans -> It is approximating Normally distributed
+se_p_bar = sqrt(p*(1-p)/n) ## 0.04242641
+pnorm(0.15,p,se_p_bar,lower.tail = FALSE) ## = 0.1192964
+## ANS = There is 11.92% Probability that machines need to be adjusted if the batch consists of 50 items.
 
+## b. What is the probability that the production machines will be adjusted if the batch consists of 100 items?
+## Find P(P_bar>0.15) by n=100
+n=100
+## Check for this distribution is approximating Normally distributed -> n*p>=5 and n*(1-p)>=5
+n*p ## 10
+n*(1-p) ## 90
+## Ans -> It is approximating Normally distributed
+se_p_bar = sqrt(p*(1-p)/n) ## 0.03
+pnorm(15,p,se_p_bar,lower.tail = FALSE) ## 0
+## ANS = There is 0% Probability that machines need to be adjusted if the batch consists of 100 items.
 
+### Additional Exercise - 65
+weekly_batches = tibble(
+  week = 1:6,
+  nonconform_percent = c(5.5,13.1,16.8,13.6,19.8,2.0)
+)
+
+### For 50 items per batches weekly
+weekly_batches_50 = weekly_batches |> 
+  mutate(
+    nonconform_prob = nonconform_percent/100
+  )
+
+p = 0.1
+n = 50
+sd_p_bar = sqrt(p*(1-p)/n)
+upper = p + 3*sd_p_bar
+lower = p - 3*sd_p_bar
+
+ggplot(weekly_batches_50,aes(x=week,y=nonconform_prob)) +
+  geom_line() +
+  geom_point() +
+  geom_hline(yintercept = p, color="blue") +
+  geom_hline(yintercept = upper, color="red") +
+  geom_hline(yintercept = lower, color="red") +
+  labs(
+    title = "Nonconforming For 50 items per batch weekly",
+    x = "Week",
+    y = "Nonconforming Probability"
+  )
+
+### For 100 items per batches weekly
+weekly_batches_100 = weekly_batches |> 
+  mutate(
+    nonconform_prob = nonconform_percent/100
+  )
+
+p = 0.1
+n = 100
+sd_p_bar = sqrt(p*(1-p)/n)
+upper = p + 3*sd_p_bar
+lower = p - 3*sd_p_bar
+
+ggplot(weekly_batches_100,aes(x=week,y=nonconform_prob)) +
+  geom_line() +
+  geom_point() +
+  geom_hline(yintercept = p, color="blue") +
+  geom_hline(yintercept = upper, color="red") +
+  geom_hline(yintercept = lower, color="red") +
+  labs(
+    title = "Nonconforming For 100 items per batch weekly",
+    x = "Week",
+    y = "Nonconforming Probability"
+  )
 
