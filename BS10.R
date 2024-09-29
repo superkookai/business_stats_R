@@ -112,6 +112,149 @@ p_value = pt(t_df,df,lower.tail = FALSE) # 0.8290876
 t.test(yes_lifespan,no_lifespan,alternative = "greater",mu=2.5,var.equal = TRUE,conf.level = 0.95)
 
 
+### Exercise 10.2 - 28
+### a. Specify the appropriate hypotheses to test if the mean difference is greater than zero.
+### Hypothesis is below
+### H0: mu_d <= 0, Ha: mu_d > 0
+
+### b. Calculate the value of the test statistic and the p-value.
+## This is right-tailed test, n>30 assume normally distributed
+d0 = 0
+d_bar = 1.2
+sd_d = 3.8
+n = 35
+df = n-1 # 34
+t_df = (d_bar-d0)/(sd_d/sqrt(n)) # 1.868236
+p_value = pt(t_df,df,lower.tail = FALSE) # 0.03518339
+
+### c. At the 5% significance level, can you conclude that the mean difference is greater than zero? Explain.
+### ANS: p_value < 0.05, so rejected H0. We can concluded that at 5% significance level the mean difference is greater than zero
+
+### Exercise 10.2 - 35
+### Data
+students_sat = read_csv("data/students_sat.csv")
+View(students_sat)
+
+### a. Specify the competing hypotheses that determine whether completion of the test-prep course increases a student’s score on the real SAT.
+### Hypothesis is below
+### H0: mu_d >= 0, Ha: mu_d < 0
+
+### b. Calculate the value of the test statistic and the p-value. Assume that the SAT scores difference is normally distributed.
+### This is left tailed
+d0 = 0
+students_sat = students_sat |> 
+  mutate(
+    Diff = `Mock SAT` - `Real SAT`
+  )
+d_bar = mean(students_sat$Diff) # -48.75
+sd_d = sd(students_sat$Diff) # 31.42679
+n = 8
+df = n-1 # 7
+t_df = (d_bar-d0)/(sd_d/sqrt(n)) # -4.387525
+p_value = pt(t_df,df) # 0.00160251
+
+### c. At the 5% significance level, do the sample data support the test-prep providers’ claims?
+### ANS: p_value < 0.05, so rejected H0. We can conclude that at 5% significance level completion of the test-prep course increases a student’s score on the real SAT.
+
+### Check with t.test
+t.test(students_sat$`Mock SAT`,students_sat$`Real SAT`,alternative = "less", mu=0, paired = TRUE)
+
+
+### Exercise 10.2 - 36
+### Data
+# Set the seed for reproducibility
+set.seed(123)
+
+# Define the number of policyholders
+num_policyholders <- 50
+
+# Average premium difference (Insure-Me - Competitor)
+avg_difference <- -100  # Negative indicates Insure-Me is cheaper
+
+# Standard deviation (adjust as needed)
+std_dev <- 50
+
+# Generate random differences in premiums
+premium_differences <- rnorm(num_policyholders, mean = avg_difference, sd = std_dev)
+
+# Generate competitor premiums (assuming a base premium of $1000)
+competitor_premiums <- rnorm(num_policyholders, mean = 1000, sd = 100)
+
+# Calculate Insure-Me premiums based on differences
+insure_me_premiums <- competitor_premiums + premium_differences
+
+# Create a data frame with policyholder IDs, Insure-Me premiums, and Competitor premiums
+policyholder_data <- data.frame(
+  PolicyholderID = 1:num_policyholders,
+  InsureMePremium = insure_me_premiums,
+  CompetitorPremium = competitor_premiums
+)
+
+head(policyholder_data)
+View(policyholder_data)
+
+### a. Specify the competing hypotheses to determine whether the mean difference between the competitor’s premium and Insure-Me’s premium is over $100.
+### Hypothesis is below
+### H0: mu_d <= 100, Ha: mu_d > 100
+
+### b. Calculate the value of the test statistic and the p-value.
+### This is right-tailed
+d0 = 100
+policyholder_data = policyholder_data |> 
+  mutate(
+    Diff = CompetitorPremium - InsureMePremium
+  )
+d_bar = mean(policyholder_data$Diff) # 98.27982
+sd_d = sd(policyholder_data$Diff) # 46.2935
+n = nrow(policyholder_data) # 50
+df = n-1 # 49
+t_df = (d_bar-d0)/(sd_d/sqrt(n)) # -0.2627473
+p_value = pt(t_df,df,lower.tail = FALSE) #  0.6030765
+
+### c. What is the conclusion at the 5% significance level? What is the conclusion at the 10% significance level?
+### ANS: p_value > 0.05 and p_value > 0.10. So both we cannot rejected H0. So we cannot conclude that at 5% or 10% significance level the mean difference between the competitor’s premium and Insure-Me’s premium is over $100.
+
+### Check with t.test
+t.test(policyholder_data$CompetitorPremium,policyholder_data$InsureMePremium,alternative = "greater", mu=100, paired = TRUE)
+
+
+### Exercise 10.2 - 36 What-if CompetitorPremium is independently with InsureMePremium
+### Hypothesis is below
+### H0: mu_com - mu_in <= 100, Ha: mu_com - mu_in > 100
+### This is right tailed test, n>30 is normally distributed, don't know population sd and not assume is equally
+d0 = 100
+n_com = 50
+n_in = 50
+x_bar_com = mean(policyholder_data$CompetitorPremium) # 1014.641
+sd_com = sd(policyholder_data$CompetitorPremium) # 90.54472
+x_bar_in = mean(policyholder_data$InsureMePremium) # 916.361
+sd_in = sd(policyholder_data$InsureMePremium) # 100.2034
+df = (sd_com**2/n_com+sd_in**2/n_in)**2 / (((sd_com**2/n_com)**2/(n_com-1))+((sd_in**2/n_in)**2/(n_in-1))) # 97.01015 round to 97
+t_df = ((x_bar_com-x_bar_in)-d0)/sqrt(sd_com**2/n_com + sd_in**2/n_in) # -0.09006517
+p_value = pt(t_df,df,lower.tail = FALSE) # 0.5357894
+
+### ANS: p_value > 0.05 and > 0.10 -> Cannot rejected H0. Both 5% or 10% significance level we cannot conclude that the mean difference between the competitor’s premium and Insure-Me’s premium is over $100.
+
+### Check with t.test function
+t.test(policyholder_data$CompetitorPremium,policyholder_data$InsureMePremium,alternative = "greater",mu=100)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
