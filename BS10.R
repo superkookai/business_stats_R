@@ -239,6 +239,76 @@ p_value = pt(t_df,df,lower.tail = FALSE) # 0.5357894
 t.test(policyholder_data$CompetitorPremium,policyholder_data$InsureMePremium,alternative = "greater",mu=100)
 
 
+### Exercise 10.3 - 54
+### a. Test if the proportion of obese African American men is less than the proportion of obese Caucasian men at α = 0.05.
+### Hypothesis is below (p1=obese African American men, p2=obese Caucasian men)
+### H0: p1-p2 >= 0, Ha: p1-p2 < 0
+n1 = 130
+n2 = 180
+x1 = 36
+x2 = 62
+d0 = 0
+p_bar_1 = x1/n1 # 0.2769231
+p_bar_2 = x2/n2 # 0.3444444
+### n1*p_bar_1, n1*(1-p_bar_1), n2*p_bar_2, n2*(1-p_bar_2) -> all greater than 5 -> Normal distribution, with left-tailed and d0 = 0
+p_bar = (x1+x2)/(n1+n2) # 0.316129
+z = (p_bar_1-p_bar_2)/sqrt(p_bar*(1-p_bar)*(1/n1+1/n2)) # -1.261679
+### Find P(Z<z)
+p_value = pnorm(z) # 0.1035321
+### ANS: p_value > 0.05, so cannot reject H0. So at 5% significance level we cannot conclude that the proportion of obese African American men is less than the proportion of obese Caucasian men.
+
+### b. Test if the proportion of obese African American women is more than the proportion of obese Caucasian women at α = 0.05.
+### Hypothesis is below (p1=obese African American women, p2=obese Caucasian women)
+### H0: p1-p2 <= 0, Ha: p1-p2 > 0
+n1 = 90
+n2 = 120
+x1 = 35
+x2 = 31
+d0 = 0
+p_bar_1 = x1/n1 # 0.3888889
+p_bar_2 = x2/n2 # 0.2583333
+### n1*p_bar_1, n1*(1-p_bar_1), n2*p_bar_2, n2*(1-p_bar_2) -> all greater than 5 -> Normal distribution, with right-tailed and d0 = 0
+p_bar = (x1+x2)/(n1+n2) # 0.3142857
+z = (p_bar_1-p_bar_2)/sqrt(p_bar*(1-p_bar)*(1/n1+1/n2)) # 2.016804
+### Find P(Z>z)
+p_value = pnorm(z,lower.tail = FALSE) # 0.02185799
+### ANS: p_value < 0.05 So rejected H0. At 5% significance level we can conclude that proportion of obese African American women is more than the proportion of obese Caucasian women
+
+### c. Test if the proportion of obese African American adults differs from the proportion of obese Caucasian adults at the 5% significance level.
+### Hypothesis is below (p1=obese African American adults,p2=obese Caucasian adults)
+### H0: p1-p2 = 0, Ha: p1-p2 != 0
+n1 = 220
+n2 = 300
+x1 = 71
+x2 = 93
+d0 = 0
+p_bar_1 = x1/n1 # 0.3227273
+p_bar_2 = x2/n2 # 0.31
+### n1*p_bar_1, n1*(1-p_bar_1), n2*p_bar_2, n2*(1-p_bar_2) -> all greater than 5 -> Normal distribution, with two-tailed test and d0 = 0
+p_bar = (x1+x2)/(n1+n2) # 0.3153846
+z = (p_bar_1-p_bar_2)/sqrt(p_bar*(1-p_bar)*(1/n1+1/n2)) # 0.3085759
+p_value = 2*pnorm(z,lower.tail = FALSE) # 0.7576441
+### ANS: p_value > 0.05, do not rejected H0. So we cannot conclude that at 5% significance level the proportion of obese African American adults differs from the proportion of obese Caucasian adults
+
+
+### Exercise 10.3 - 58
+### In a recent survey, 200 heterosexual college students were asked if it was not feasible for male and female students to be just friends. 
+### Hypothesis is below (p1=proportion of male,p2=proportion of female)
+### H0: p1-p2 <= 0.10, Ha: p1-p2 > 0.10
+n1 = 100
+n2 = 100
+p_bar_1 = 0.57
+p_bar_2 = 0.32
+d0 = 0.10
+### n1*p_bar_1, n1*(1-p_bar_1), n2*p_bar_2, n2*(1-p_bar_2) -> all greater than 5 -> Normal distribution, with right-tailed test and d0 = 0.10
+z = ((p_bar_1-p_bar_2)-d0)/sqrt(p_bar_1*(1-p_bar_1)/n1 + p_bar_2*(1-p_bar_2)/n2) # 2.205167
+p_value = pnorm(z,lower.tail = FALSE) # 0.01372118
+### ANS: p_value < 0.05, so rejected H0. So at 5% significance level we can conclude that proportion of male who think male/female can't be just friend is greater than proportion of female who think the same around 10%
+
+
+
+
+
 
 
 
