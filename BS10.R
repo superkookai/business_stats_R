@@ -306,6 +306,119 @@ p_value = pnorm(z,lower.tail = FALSE) # 0.01372118
 ### ANS: p_value < 0.05, so rejected H0. So at 5% significance level we can conclude that proportion of male who think male/female can't be just friend is greater than proportion of female who think the same around 10%
 
 
+### Report 10.2
+### Determine whether the average starting salary in Chicago is greater than Denver's average starting salary.
+### Hypothesis is below (1=Chicago,2=Denver)
+### H0: mu1-mu2 <= 0, Ha: mu1-mu2 > 0
+n1 = 100
+n2 = 100
+x_bar_1 = 63381
+x_bar_2 = 61261
+pop_sd_1 = 14500
+pop_sd_2 = 16000
+d0 = 0
+### This is right-tailed test, n>30 -> Normal distribution
+z = ((x_bar_1-x_bar_2)-d0)/sqrt(pop_sd_1**2/n1 + pop_sd_2**2/n2) # 0.9818077
+p_value = pnorm(z,lower.tail = FALSE) # 0.1630973
+### ANS: p_value > 0.05, cannot rejected H0. So at 5% significance level we cannot conclude that average starting salary in Chicago is greater than Denver's average starting salary
+
+### Determine whether the proportion of the population in their twenties differs in these two cities
+### Hypothesis is below (1=Chicago,2=Denver)
+### H0: p1-p2 == 0, Ha: p1-p1 != 0
+n1 = 100
+n2 = 100
+p_bar_1 = 0.22
+p_bar_2 = 0.20
+d0 = 0
+x1 = p_bar_1*n1 # 22
+x2 = p_bar_2*n2 # 20
+p_bar = (x1+x2)/(n1+n2) #  0.21
+### n1*p_bar_1, n1*(1-p_bar_1), n2*p_bar_2, n2*(1-p_bar_2) -> all greater than 5 -> Normal distribution, with two-tailed test and d0 = 0
+z = (p_bar_1-p_bar_2)/sqrt(p_bar*(1-p_bar)*(1/n1+1/n2)) # 0.3472097
+p_value = 2*pnorm(z,lower.tail = FALSE) # 0.7284338
+### ANS: p_value > 0.05 so cannot rejected H0. At 5% significance level we cannot conclude that the proportion of the population in their twenties differs in these two cities.
+
+### Additional Exercise 10.60
+### a. Specify the competing hypotheses to determine whether men spend more money on St.Patrick’s Day as compared to women.
+### b. Calculate the value of the test statistic.
+### c. Find the p-value.
+### d. At the 1% significance level, do men spend more money on St. Patrick’s Day as compared to women? Explain.
+### Hypothesis is below (1=men,2=women)
+### H0: mu1-mu2 <= 0, Ha: mu1-mu2 > 0
+n1 = 100
+n2 = 100
+x_bar_1 = 43.87
+x_bar_2 = 29.54
+pop_sd_1 = 32
+pop_sd_2 = 25
+d0 = 0
+### This is right-tailed test, n>30 -> Normal distribution, known pop_sd
+z = ((x_bar_1-x_bar_2)-d0)/sqrt(pop_sd_1**2/n1+pop_sd_2**2/n2) # 3.528872
+p_value = pnorm(z,lower.tail = FALSE) # 0.0002086677
+### ANS: p_value < 0.01 so rejeceted H0. So at 1% significance level we can conclude that men spend more money on St.Patrick’s Day as compared to women.
+
+
+### Additional Exercise 10.64
+### Data
+# Set the seed for reproducibility
+set.seed(123)
+
+# Define the number of women
+num_women <- 40
+
+# Generate random pre-pregnancy weights (adjust mean and standard deviation as needed)
+pre_pregnancy_weights <- rnorm(num_women, mean = 130, sd = 15)
+
+# Generate weight gain during pregnancy (within the recommended range)
+weight_gain <- runif(num_women, min = 25, max = 35)
+
+# Calculate post-pregnancy weights
+post_pregnancy_weights <- pre_pregnancy_weights + weight_gain
+
+# Create a data frame with pre-pregnancy and post-pregnancy weights
+weight_data <- data.frame(
+  WomanID = 1:num_women,
+  Pregnant = c(rep("Before", num_women), rep("After", num_women)),
+  Weight = c(pre_pregnancy_weights, post_pregnancy_weights)
+)
+
+View(weight_data)
+
+### Prepare data
+
+weight_table = weight_data |> 
+  pivot_wider(names_from = Pregnant, values_from = Weight)
+View(weight_table)
+
+weight_table = weight_table |> 
+  mutate(Gain = After-Before)
+
+### a. At the 5% level of significance, determine if the mean weight gain of women due to pregnancy is more than 30 pounds.
+### This is matched-pair testing and right-tailed
+### Hypothesis is below
+### H0: mu_d <= 30, Ha: mu_d > 30
+d_bar = mean(weight_table$Gain) # 30.29312
+sd_bar = sd(weight_table$Gain) # 2.899285
+n = nrow(weight_table) # 40
+d0 = 30
+df = n-1 # 39
+t_df = (d_bar-d0)/(sd_bar/sqrt(n)) # 0.6394073
+p_value = pt(t_df,df,lower.tail = FALSE) # 0.2631481
+### ANS: p_value > 0.05, cannot rejected H0. So at 5% significance level we cannot conclude that mean weight gain of women due to pregnancy is more than 30 pounds.
+
+### b. At the 5% level of significance, determine if the mean weight gain of women due to pregnancy is more than 35 pounds.
+### This is matched-pair testing and right-tailed
+### Hypothesis is below
+### H0: mu_d <= 35, Ha: mu_d > 35
+d_bar = mean(weight_table$Gain) # 30.29312
+sd_bar = sd(weight_table$Gain) # 2.899285
+n = nrow(weight_table) # 40
+d0 = 35
+df = n-1 # 39
+t_df = (d_bar-d0)/(sd_bar/sqrt(n)) # -10.26769
+t_cri = qt(0.05,df,lower.tail = FALSE) # 1.684875
+p_value = pt(t_df,df,lower.tail = FALSE) # 1
+### ANS: p_value > 0.05, cannot rejected H0. So at 5% significance level we cannot conclude that the mean weight gain of women due to pregnancy is more than 35 pounds.
 
 
 
@@ -318,6 +431,27 @@ p_value = pnorm(z,lower.tail = FALSE) # 0.01372118
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
 
 
 
