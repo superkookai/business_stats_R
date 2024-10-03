@@ -190,6 +190,171 @@ p_value = pf(F_dfnew_dfold,df_new,df_old,lower.tail = TRUE) # 0.006346038
 
 
 
+### Report 11.1
+### Data
+# Set the seed for reproducibility
+set.seed(123)
+
+# Define the number of fill-ups
+num_fill_ups <- 20
+
+# Given mean and standard deviation
+mean_mpg <- 28
+std_dev_mpg <- 1.5
+
+# Generate normally distributed MPG values
+mpg_data <- rnorm(num_fill_ups, mean = mean_mpg, sd = std_dev_mpg)
+
+# Create a data frame with fill-up numbers and MPG values
+fill_up_data <- data.frame(
+  FillUpNumber = 1:num_fill_ups,
+  MPG = mpg_data
+)
+
+View(fill_up_data)
+
+### Find 95% confidence Interval of population standard deviation
+n = nrow(fill_up_data) # 20
+df = n-1 # 19
+s = sd(fill_up_data$MPG) # 1.458998
+alpha = 0.05
+chi_sq_df_lower = qchisq(alpha/2,df,lower.tail = FALSE) # 32.85233
+chi_sq_df_upper = qchisq(1-alpha/2,df,lower.tail = FALSE) # 8.906516 
+## can use qchisq(alpha/2,df,lower.tail = TRUE)
+lower = (n-1)*s**2/chi_sq_df_lower # 1.23111
+upper = (n-1)*s**2/chi_sq_df_upper # 4.541038
+### ANS: 95% confidence Interval of population standard deviation is [1.23,4.54]
+
+### Hypothesis is below
+### H0: sigma_sq <= 1, Ha: sigma_sq > 1
+### Right-tailed test
+sigma_0 = 1
+chi_sq_df = (n-1)*s**2/sigma_0**2 # 40.44483
+p_value = pchisq(chi_sq_df,df,lower.tail = FALSE) # 0.002859398
+### ANS: p_value < 0.05, so rejected H0. So with 5% significance level we can conclude that the variability has increased from the original standard deviation 1 mpg.
+### ANS: Actually from 95% confidence interval, 1 is out of range [1.23,4.54] so we can rejected H0.
+
+
+### Additional Exercise - 44
+### Data
+# Set the seed for reproducibility
+set.seed(123)
+
+# Define the number of deliveries
+num_deliveries <- 50
+
+# Average delivery time (adjust as needed)
+avg_delivery_time <- 30
+
+# Standard deviation for east side (smaller to reflect lower variation)
+std_dev_east <- 5
+
+# Standard deviation for west side (larger to reflect higher variation)
+std_dev_west <- 7
+
+# Generate delivery times for east side
+east_side_deliveries <- rnorm(num_deliveries, mean = avg_delivery_time, sd = std_dev_east)
+
+# Generate delivery times for west side
+west_side_deliveries <- rnorm(num_deliveries, mean = avg_delivery_time, sd = std_dev_west)
+
+# Create a data frame with restaurant location and delivery time data
+delivery_data <- data.frame(
+  RestaurantLocation = c(rep("East Side", num_deliveries), rep("West Side", num_deliveries)),
+  DeliveryTime = c(east_side_deliveries, west_side_deliveries)
+)
+
+View(delivery_data)
+
+### Prepare data
+east = delivery_data |> 
+  filter(RestaurantLocation=="East Side")
+n_east = nrow(east) # 50
+df_east = n_east-1 # 49
+s_east = sd(east$DeliveryTime) # 4.62935
+
+west = delivery_data |> 
+  filter(RestaurantLocation=="West Side")
+n_west = nrow(west) # 50
+df_west = n_west-1 # 49
+s_west = sd(west$DeliveryTime) # 6.33813
+
+### Prove the variation of pizza deliveries is lower on the east side of the campus than on the west side.
+### Hypothesis is below
+### H0: sigma_sq_west/sigma_sq_east <= 1, Ha: sigma_sq_west/sigma_sq_east > 1
+### Right-sided, F-test
+f_dfwest_dfeast = s_west**2/s_east**2 # 1.874487
+p_value = pf(f_dfwest_dfeast,df_west,df_east,lower.tail = FALSE) # 0.01498585
+### ANS: p_value < 0.05, so rejected H0. At 5% significance level we can conclude that pizza delivery variation time on west side is greater than on east side.
+
+
+
+### Additional Exercise - 47
+### Data
+# Set the seed for reproducibility
+set.seed(123)
+
+# Define the number of phone calls
+num_phone_calls <- 50
+
+# Average wait time (adjust as needed)
+avg_wait_time <- 60
+
+# Standard deviation for early shift (smaller to reflect lower variation)
+std_dev_early <- 5
+
+# Standard deviation for late shift (larger to reflect higher variation)
+std_dev_late <- 6
+
+# Generate wait times for early shift
+early_wait_times <- rnorm(num_phone_calls, mean = avg_wait_time, sd = std_dev_early)
+
+# Generate wait times for late shift
+late_wait_times <- rnorm(num_phone_calls, mean = avg_wait_time, sd = std_dev_late)
+
+# Create a data frame with wait times
+wait_time_data <- data.frame(
+  Shift = c(rep("Early", num_phone_calls), rep("Late", num_phone_calls)),
+  WaitTime = c(early_wait_times, late_wait_times)
+)
+
+View(wait_time_data)
+
+### Prepare data
+early = wait_time_data |> 
+  filter(Shift=="Early")
+n_early = nrow(early) # 50
+df_early = n_early-1 # 49
+s_early = sd(early$WaitTime) # 4.62935
+
+late = wait_time_data |> 
+  filter(Shift=="Late")
+n_late = nrow(late) # 50
+df_late = n_late-1 # 49
+s_late = sd(late$WaitTime) # 5.432683
+
+### a. Specify the hypotheses to test if the variance of wait time in the early morning shift differs from that in the late morning shift.
+### Hypothesis is below
+### H0: sigma_sq_early/sigma_sq_late == 1, Ha: sigma_sq_early/sigma_sq_late != 1
+### This is Two-tailed F-test
+
+### b. At the 1% significance level, what is your conclusion?
+f_dfearly_dflate = s_early**2/s_late**2 # 0.7261248
+p_value = pf(f_dfearly_dflate,df_early,df_late,lower.tail = FALSE) # 0.8669449
+### ANS: p_value > 0.10, so cannot rejected H0. So at 1% significance level we cannot conclude that wait time variability in early shift is differed from late shift.
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
