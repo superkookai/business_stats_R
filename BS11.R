@@ -289,7 +289,8 @@ f_dfwest_dfeast = s_west**2/s_east**2 # 1.874487
 p_value = pf(f_dfwest_dfeast,df_west,df_east,lower.tail = FALSE) # 0.01498585
 ### ANS: p_value < 0.05, so rejected H0. At 5% significance level we can conclude that pizza delivery variation time on west side is greater than on east side.
 
-
+### check with var.test function
+var.test(west$DeliveryTime,east$DeliveryTime,ratio = 1,alternative = "greater",conf.level = 0.95)
 
 ### Additional Exercise - 47
 ### Data
