@@ -86,7 +86,9 @@ chi_sq_df = (n_b-1)*s_b**2/sigma_sq_0 # 33.19992
 ## Left-tailed test
 p_value = pchisq(chi_sq_df,df) # 0.04092251
 ### ANS: p_value < 0.05, so rejected H0. So we can conclude that at 5% significance level the standard deviation of the rent in Town 2 is below 220. Company can also invest in this Town2 but invest in Town1 is lower risk than Town2 due to p_value of Town2 is greater than Town1.
-
+### Check with EnvStats package function -> varTest only question b
+library(EnvStats)
+varTest(town_b$Rent,alternative = "less",conf.level = 0.95,sigma.squared = 48400)
 
 ### Exercise 11.2 - 30
 ### a. Develop the hypotheses to test whether the population variances differ.
