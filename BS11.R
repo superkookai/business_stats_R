@@ -340,15 +340,11 @@ s_late = sd(late$WaitTime) # 5.432683
 
 ### b. At the 1% significance level, what is your conclusion?
 f_dfearly_dflate = s_early**2/s_late**2 # 0.7261248
-p_value = pf(f_dfearly_dflate,df_early,df_late,lower.tail = FALSE) # 0.8669449
+p_value = 2*pf(f_dfearly_dflate,df_early,df_late,lower.tail = TRUE) # 0.2661102
 ### ANS: p_value > 0.10, so cannot rejected H0. So at 1% significance level we cannot conclude that wait time variability in early shift is differed from late shift.
 
-
-
-
-
-
-
+### Check with var.test function
+var.test(early$WaitTime,late$WaitTime,ratio = 1,alternative = "two.sided",conf.level = 0.9)
 
 
 
