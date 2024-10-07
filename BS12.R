@@ -442,6 +442,133 @@ p_value = pchisq(chi_sq_1,df,lower.tail = FALSE) # 0.000000116995
 ### ANS: p_value < 0.05, rejected H0. At 5% significance level we can conclude that Drug addict proportion value is not the same as of year 2018.
 
 
+### Additional Exercise - 38
+### Data
+breaks_data = tibble(
+  Delivery = c("In Person","Phone","Email","Facebook","Instant Message"),
+  FB_results = c(0.47,0.3,0.04,0.05,0.14),
+  Research_results = c(0.55,0.25,0.06,0.05,0.09)
+)
+sum(breaks_data$FB_results)
+sum(breaks_data$Research_results)
+
+### Conduct Goodness-of-fit test
+### Hypothesis is below.
+### H0: p1=0.47,p2=0.3,p3=0.04,p4=0.05,p5=0.14
+### Ha: Not all population proportion follow FB_results
+
+n = 200
+k = 5 
+df = k-1 # 4
+
+breaks_table = breaks_data |> 
+  mutate(
+    O = Research_results*n,
+    E = FB_results*n,
+    std_sq_diviation = (O-E)**2/E
+  )
+
+chi_sq_4 = sum(breaks_table$std_sq_diviation) # 9.961499
+p_value = pchisq(chi_sq_4,df,lower.tail = FALSE) # 0.04108124
+
+### ANS: p_value < 0.05, rejected H0. So at 5% significance level we can conclude that Researcher's results is difference with FB results.But if we lower significance level to 1%, p_value > 0.01, not rejected H0, so we can conclude that Reseracher's results is not difference with FB results.
+
+
+### Additional Exercise - 43
+### a. State the competing hypotheses to test whether a person’s sex and race are dependent when making a choice to serve in the military.
+### H0: Person’s sex and race are independent when making a choice to serve in the military.
+### H1: Person’s sex and race are dependent when making a choice to serve in the military.
+
+### b. Conduct the test at the 5% significance level.
+military_data = tibble(
+  Item = 1:6,
+  O_Freq = c(1098,678,549,484,355,64),
+  Race = c("Hispanic","Black","White","Hispanic","Black","White"),
+  Sex = c("Male","Male","Male","Female","Female","Female")
+)
+n = sum(military_data$O_Freq) # 3228
+
+sum_male = sum(
+  military_data |> 
+    filter(Sex=="Male") |> 
+    select(O_Freq)
+) # 2325
+
+sum_female = sum(
+  military_data |> 
+    filter(Sex=="Female") |> 
+    select(O_Freq)
+) # 903
+
+sum_hispanic = sum(
+  military_data |> 
+    filter(Race=="Hispanic") |> 
+    select(O_Freq)
+) # 1582
+
+sum_black = sum(
+  military_data |> 
+    filter(Race=="Black") |> 
+    select(O_Freq)
+) # 1033
+
+sum_white = sum(
+  military_data |> 
+    filter(Race=="White") |> 
+    select(O_Freq)
+) # 613
+
+df = (2-1)*(3-1) # 2
+Eij = c(sum_male*sum_hispanic/n,sum_male*sum_black/n,sum_male*sum_black/n,
+        sum_female*sum_hispanic/n,sum_female*sum_black/n,sum_female*sum_black/n)
+chi_sq_df = sum((military_data$O_Freq-Eij)**2/Eij) # 252.6052
+p_value = pchisq(chi_sq_df,df,lower.tail = FALSE) # 0
+
+### ANS: p_value < 0.05, rejected H0. So at 5% significance level we can conclude that race and sex are dependent for serving military's services.
+
+
+
+### Additional Exercise - 51
+### Hypothesis is below
+### H0: Program generate random numbers follow normally distributed with mean=100, sd=10
+### Ha: Program generate random numbers not follow normally distributed with mean=100, sd=10
+
+### Data
+program_data = tibble(
+  Value = factor(
+    c("Under 70","70 to 80","80 to 90","90 to 100","100 to 110","110 to 120","120 to 130","130 or more"), 
+    levels = c("Under 70","70 to 80","80 to 90","90 to 100","100 to 110","110 to 120","120 to 130","130 or more"  )),
+  Freq = c(12,99,658,1734,1681,697,112,7)
+)
+n = sum(program_data$Freq) # 5000
+
+p_under70 = pnorm(70,100,10) # 0.001349898
+p_vectors = c(p_under70)
+for (point in seq(from = 70, to = 120, by = 10)){
+  p_norm = pnorm(point+10,100,10)-pnorm(point,100,10)
+  p_vectors = append(p_vectors,p_norm)
+}
+p_over130 = pnorm(130,100,10,lower.tail = FALSE)
+p_vectors = append(p_vectors,p_over130)
+sum(p_vectors)
+
+program_data$Prop = p_vectors
+program_table = program_data |> 
+  mutate(
+    E = Prop*n,
+    std_sq_div = (Freq-E)**2/E
+  )
+k = 8 
+df = k-1 # 7
+chi_sq_df = sum(program_table$std_sq_div) # 6.880432
+p_value = pchisq(chi_sq_df,df,lower.tail = FALSE) #  0.4414346
+
+### ANS: p_value > 0.05, cannot rejected H0. So at 5% significance level we cannot conclude that Program generate random number not follow normal distribution with mean=100, sd=10. 
+
+
+
+
+
 
 
 
