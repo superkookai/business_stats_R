@@ -250,5 +250,185 @@ upper_2_3 = (x_bar_2-x_bar_3) + q_alpha_df_q*sqrt(MSE/n) # 1.857552
 ### ANS: At 10% significance level we can concluded that mean days of absenteeism on First Shift is differ from Second and Third Shift. Absenteeism on First Shift is lowest.
 
 
+#### Exercise 13.3 - 30
+### a. Calculate SST, SSA, SSB, and SSE.
+### SSA = r*sum((x_bar_i-grand_mean)**2)
+SSA = 4*(
+  (2-4.25)**2 + (7-4.25)**2 + (3.75-4.25)**2
+) # 51.5
+
+### SSB = c*sum((x_bar_j-grand_mean)**2)
+SSB = 3*(
+  (8-4.25)**2 + (5-4.25)**2 + (2-4.25)**2 + (2-4.25)**2
+) # 74.25
+
+### SST = sum((x_ij-grand_mean)**2)
+SST = (
+  (4-4.25)**2 + (8-4.25)**2 + (12-4.25)**2 +
+    (2-4.25)**2 + (10-4.25)**2 + (3-4.25)**2 +
+    (0-4.25)**2 + (6-4.25)**2 + (0-4.25)**2 +
+    (2-4.25)**2 + (4-4.25)**2 + (0-4.25)**2
+) # 176.25
+
+### SSE = SST - (SSA+SSB)
+SSE = SST - (SSA+SSB) # 50.5
+
+### b. Calculate MSA, MSB, and MSE.
+### MSA = SSA/(c-1)
+MSA = SSA/(3-1) # 25.75
+
+### MSB = SSB/(r-1)
+MSB = SSB/(4-1) # 24.75
+
+### MSE = SSE/(n_T-c-r+1)
+MSE = SSE/(12-3-4+1) # 8.416667
+
+### d. At the 5% significance level, can you conclude that the column means differ?
+### Hypothesis is below
+### H0: All column means are the same (mu1==mu2==mu3)
+### Ha: Not all column means are the same
+df1 = 3-1
+df2 = 12-3-4+1
+F_df1_df2 = MSA/MSE # 3.059406
+p_value = pf(F_df1_df2,df1,df2,lower.tail = FALSE) # 0.1213595
+### ANS: p_value > 0.05, cannot rejected H0. So at 5% significance level we cannot conclude that all column means are differ.
+
+### e. At the 5% significance level, can you conclude that the row means differ?
+### Hypothesis is below
+### H0: All row means are the same (mu1==mu2==mu3)
+### Ha: Not all row means are the same
+df1 = 4-1
+df2 = 12-3-4+1
+F_df1_df2 = MSB/MSE # 2.940594
+p_value = pf(F_df1_df2,df1,df2,lower.tail = FALSE) #  0.1209108
+### ANS: p_value > 0.05, cannot rejected H0. So at 5% significance level we cannot conclude that all row means are differ.
+
+#### Exercise 13.3 - 40
+### Factor A (Column) = Advertising strategies [Newspaper,Internet,TV,Internet&TV]
+### Factor B (Row) = Store locations [City,Suburban,Rural]
+### Data
+yumyum = tibble(
+  Sales = c(511,644,585,712,458,548,503,614,388,298,347,421),
+  Ads = c("Newspaper","Internet","TV","Internet&TV","Newspaper","Internet","TV","Internet&TV","Newspaper","Internet","TV","Internet&TV"),
+  Locations = c("City","City","City","City","Suburban","Suburban","Suburban","Suburban","Rural","Rural","Rural","Rural")
+)
+View(yumyum)
+
+### Hypothesis is below for Factor A (Column) = Advertising strategies
+### H0: All Sales means of Advertising strategies are the same [mu1==mu2==mu3==mu4]
+### Ha: Not all Sales means of Advertising strategies are the same
+
+### Hypothesis is below for Factor B (Row) = Store locations [City,Suburban,Rural]
+### H0: All Sales means of Store locations are the same [mu1==mu2==mu3]
+### Ha: Not all Sales means of Store locations are the same
+
+### Using aov and anova functions
+yum_fm = aov(Sales~Ads+Locations ,data = yumyum)
+anova(yum_fm)
+
+
+### Calculate Test Statistics Manually: Find SSA,SSB,SST,SSE,MSA,MSB,MSE,F_df1_df2
+newspaper = yumyum |> 
+  filter(Ads=="Newspaper")
+x_bar_newspaper = mean(newspaper$Sales) # 452.3333
+
+internet = yumyum |> 
+  filter(Ads=="Internet")
+x_bar_internet = mean(internet$Sales) # 496.6667
+
+tv = yumyum |> 
+  filter(Ads=="TV")
+x_bar_tv = mean(tv$Sales) # 478.3333
+
+inter_tv = yumyum |> 
+  filter(Ads=="Internet&TV")
+x_bar_inter_tv = mean(inter_tv$Sales) # 582.3333
+
+city = yumyum |> 
+  filter(Locations=="City")
+x_bar_city = mean(city$Sales) # 613
+
+suburban = yumyum |> 
+  filter(Locations=="Suburban")
+x_bar_suburban = mean(suburban$Sales) # 530.75
+
+rural = yumyum |> 
+  filter(Locations=="Rural")
+x_bar_rural = mean(rural$Sales) # 363.5
+
+grand_mean = mean(yumyum$Sales) # 502.4167
+r = 3
+c = 4
+n_T = nrow(yumyum) # 12
+
+SSA = r*((x_bar_newspaper-grand_mean)**2 + (x_bar_internet-grand_mean)**2 + (x_bar_tv-grand_mean)**2 + (x_bar_inter_tv-grand_mean)**2) # 28524.25
+SSB = c*((x_bar_city-grand_mean)**2 + (x_bar_suburban-grand_mean)**2 + (x_bar_rural-grand_mean)**2) # 129317.2
+SST = sum(
+  (yumyum$Sales-grand_mean)**2
+) # 173026.9
+SSE = SST - (SSA+SSB) # 15185.5
+
+MSA = SSA/(c-1) # 9508.083
+MSB = SSB/(r-1) # 64658.58
+MSE = SSE/(n_T-c-r+1) # 2530.917
+
+### F for Ads
+df1 = c-1 # 3
+df2 = n_T-c-r+1 # 6
+F_ads = MSA/MSE # 3.756775
+p_value_ads = pf(F_ads,df1,df2,lower.tail = FALSE) # 0.07879812
+
+### F for Locations
+df1_lo = r-1 # 2
+df2_lo = n_T-c-r+1 # 6
+F_lo = MSB/MSE # 25.5475
+p_value_lo = pf(F_lo,df1_lo,df2_lo,lower.tail = FALSE) # 0.001160539
+
+
+### a. At the 5% significance level, can you conclude that the mean sales differ among the advertising strategies? What about the 10% significance level?
+### ANS According to anova function: p_value of Ads is 0.078798 which greater than 0.05, so cannot rejected H0, so at 5% significance level we cannot conclude that mean sales differ among the advertising strategies. But for 10% significance (p_value < 0.10) so we can rejected H0, so at 10% significance we can conclude that mean sales differ among the advertising strategies. [These answers are corrected after checking with manually]
+
+### b. At the 5% significance level, can you conclude that the mean sales differ across the store locations?
+### ANS: p_value is 0.001160539 (same as in anova function) which is less than 0.05, so can rejected H0. So at 5% significance we can concluded that mean sales differ across the store locations.
+
+### c. If significant differences exist across advertising strategies, use Fisher’s LSD method at the 10% significance level to find which strategies have different mean sales.
+df_fisher = n_T-c-r+1 # 6
+alpha = 0.10
+t_alpha_2_df = qt(alpha/2,df_fisher,lower.tail = FALSE) # 1.94318
+
+### Ads - Newspaper v Internet
+lower_news_int = (x_bar_newspaper-x_bar_internet) - t_alpha_2_df*sqrt(MSE*(1/3+1/3)) # -124.1524
+upper_news_int = (x_bar_newspaper-x_bar_internet) + t_alpha_2_df*sqrt(MSE*(1/3+1/3)) # 35.48569
+### Found Newspaper v Internet: [-124.1524,35.48569] -> Has zero, so mean Newspaper not differ mean Internet
+
+### Ads - Newspaper v TV
+lower_news_tv = (x_bar_newspaper-x_bar_tv) - t_alpha_2_df*sqrt(MSE*(1/3+1/3)) # -105.819
+upper_news_tv = (x_bar_newspaper-x_bar_tv) + t_alpha_2_df*sqrt(MSE*(1/3+1/3)) # 53.81902
+### Found Newspaper v TV: [-105.819,53.81902] -> Has zero, so mean Newspaper not differ mean TV
+
+### Ads - Newspaper v Internet&TV
+lower_news_intertv = (x_bar_newspaper-x_bar_inter_tv) - t_alpha_2_df*sqrt(MSE*(1/3+1/3)) # -209.819
+upper_news_intertv = (x_bar_newspaper-x_bar_inter_tv) + t_alpha_2_df*sqrt(MSE*(1/3+1/3)) # -50.18098
+### Found Newspaper v Internet&TV: [-209.819,-50.18098] -> No zero, so mean Newspaper differ mean Internet&TV
+
+### Ads - Internet v TV
+lower_inter_tv = (x_bar_internet-x_bar_tv) - t_alpha_2_df*sqrt(MSE*(1/3+1/3)) # -61.48569
+upper_inter_tv = (x_bar_internet-x_bar_tv) + t_alpha_2_df*sqrt(MSE*(1/3+1/3)) # 98.15235
+### Found Internet v TV: [-61.48569,98.15235] -> Has zero, so mean Internet not differ mean TV
+
+### Ads - Internet v Internet&TV
+lower_inter_intertv = (x_bar_internet-x_bar_inter_tv) - t_alpha_2_df*sqrt(MSE*(1/3+1/3)) # -165.4857
+upper_inter_intertv = (x_bar_internet-x_bar_inter_tv) + t_alpha_2_df*sqrt(MSE*(1/3+1/3)) # -5.847647
+### Found Internet v Internet&TV: [-165.4857,-5.847647] -> No zero, so mean Internet differ mean Internet&TV
+
+### Ads - TV v Internet&TV
+lower_tv_intertv = (x_bar_tv-x_bar_inter_tv) - t_alpha_2_df*sqrt(MSE*(1/3+1/3)) # -183.819
+upper_tv_intertv = (x_bar_tv-x_bar_inter_tv) + t_alpha_2_df*sqrt(MSE*(1/3+1/3)) # -24.18098
+### Found TV v Internet&TV: [-183.819,-24.18098] -> No zero, so mean TV differ mean Internet&TV
+
+### ANS: At 10% significance level we can conclude that Sales mean for Internet&TV is differ among other advertising strategies. Internet&TV has Sales mean = 582 (USD1000) which is the greatest among others.
+
+### Checking with TukeyHSD function
+TukeyHSD(yum_fm,conf.level = 0.90)
 
 
