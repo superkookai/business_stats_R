@@ -432,3 +432,420 @@ upper_tv_intertv = (x_bar_tv-x_bar_inter_tv) + t_alpha_2_df*sqrt(MSE*(1/3+1/3)) 
 TukeyHSD(yum_fm,conf.level = 0.90)
 
 
+### Example 13.4 - 51
+### Data
+
+# Set parameters
+majors <- c("Business", "Engineering", "SocialSciences")
+gpa_ranges <- list(
+  "2.5-2.99" = c(2.5, 2.99),
+  "3.0-3.49" = c(3.0, 3.49),
+  "3.5-4.0" = c(3.5, 4.0)
+)
+avg_salaries <- c(Business = 70000, Engineering = 80000, SocialSciences = 60000)
+sd_salaries <- c(Business = 10000, Engineering = 12000, SocialSciences = 8000)
+num_samples <- 5
+
+# Generate data
+data <- data.frame()
+for (major in majors) {
+  for (range_name in names(gpa_ranges)) {
+    gpa_range <- gpa_ranges[[range_name]]
+    avg_salary <- avg_salaries[[major]]
+    sd_salary <- sd_salaries[[major]]
+    
+    new_data <- data.frame(
+      Major = major,
+      GPA = sample(seq(gpa_range[1], gpa_range[2], by = 0.01), num_samples, replace = TRUE),
+      StartingSalary = rnorm(num_samples, avg_salary, sd_salary)
+    )
+    
+    data <- rbind(data, new_data)
+  }
+}
+
+# View the generated data
+View(data)
+
+# Create GPA Range Column
+salaries_data = data |> 
+  mutate(
+    GPA_Range = case_when(
+      GPA>=2.5 & GPA<=2.99 ~ "Between 2.5 to 2.99",
+      GPA>=3.0 & GPA<=3.49 ~ "Between 3.0 to 3.49",
+      GPA>=3.5 & GPA<=4.0 ~ "Between 3.5 to 4.0"
+    )
+  )
+View(salaries_data)
+
+### Use aov and anova functions
+interaction = aov(data = salaries_data, StartingSalary ~ Major*GPA_Range)
+anova(interaction)
+
+### Find Test Statistics ###
+c=3
+r=3
+w=5
+
+### Find Grand Mean/SST
+grand_mean = mean(salaries_data$StartingSalary) # 68153.83
+SST = sum((salaries_data$StartingSalary-grand_mean)**2) # 7471861766
+
+bus_data = salaries_data |> 
+  filter(Major=="Business")
+
+eng_data = salaries_data |> 
+  filter(Major=="Engineering")
+
+social_data = salaries_data |> 
+  filter(Major=="SocialSciences")
+
+b_2.5to2.99 = salaries_data |> 
+  filter(GPA_Range=="Between 2.5 to 2.99")
+
+b_3.0to3.49 = salaries_data |> 
+  filter(GPA_Range=="Between 3.0 to 3.49")
+
+b_3.5to4.0 = salaries_data |> 
+  filter(GPA_Range=="Between 3.5 to 4.0")
+
+x_bar_bus = mean(bus_data$StartingSalary) # 70168.05
+x_bar_eng = mean(eng_data$StartingSalary) # 75605.4
+x_bar_social = mean(social_data$StartingSalary) # 58688.04
+
+x_bar_2.5to2.99 = mean(b_2.5to2.99$StartingSalary) # 72418.14
+x_bar_3.0to3.49 = mean(b_3.0to3.49$StartingSalary) # 63829.27
+x_bar_3.5to4.0 = mean(b_3.5to4.0$StartingSalary) # 68214.08
+
+### Find SSA,SSB,MSA,MSB
+SSA = w*r*((x_bar_bus-grand_mean)**2 + (x_bar_eng-grand_mean)**2 + (x_bar_social-grand_mean)**2) # 2237762425
+SSB = w*c*((x_bar_2.5to2.99-grand_mean)**2 + (x_bar_3.0to3.49-grand_mean)**2 + (x_bar_3.5to4.0-grand_mean)**2) # 553346321
+
+MSA = SSA/(c-1) # 1118881213
+MSB = SSB/(r-1) # 276673160
+
+bus_2.5to2.99 = salaries_data |> 
+  filter(Major=="Business" & GPA_Range=="Between 2.5 to 2.99")
+bus_3.0to3.49 = salaries_data |> 
+  filter(Major=="Business" & GPA_Range=="Between 3.0 to 3.49")
+bus_3.5to4.0 = salaries_data |> 
+  filter(Major=="Business" & GPA_Range=="Between 3.5 to 4.0")
+
+eng_2.5to2.99 = salaries_data |> 
+  filter(Major=="Engineering" & GPA_Range=="Between 2.5 to 2.99")
+eng_3.0to3.49 = salaries_data |> 
+  filter(Major=="Engineering" & GPA_Range=="Between 3.0 to 3.49")
+eng_3.5to4.0 = salaries_data |> 
+  filter(Major=="Engineering" & GPA_Range=="Between 3.5 to 4.0")
+
+social_2.5to2.99 = salaries_data |> 
+  filter(Major=="SocialSciences" & GPA_Range=="Between 2.5 to 2.99")
+social_3.0to3.49 = salaries_data |> 
+  filter(Major=="SocialSciences" & GPA_Range=="Between 3.0 to 3.49")
+social_3.5to4.0 = salaries_data |> 
+  filter(Major=="SocialSciences" & GPA_Range=="Between 3.5 to 4.0")
+
+x_bar_bus_2.5to2.99 = mean(bus_2.5to2.99$StartingSalary) # 77926.37
+x_bar_bus_3.0to3.49 = mean(bus_3.0to3.49$StartingSalary) # 63829.27
+x_bar_bus_3.5to4.0 = mean(bus_3.5to4.0$StartingSalary) # 68214.08
+
+x_bar_eng_2.5to2.99 = mean(eng_2.5to2.99$StartingSalary) # 77104.45
+x_bar_eng_3.0to3.49 = mean(eng_3.0to3.49$StartingSalary) # 71652.83
+x_bar_eng_3.5to4.0 = mean(eng_3.5to4.0$StartingSalary) # 78058.92
+
+x_bar_social_2.5to2.99 = mean(social_2.5to2.99$StartingSalary) # 62223.59
+x_bar_social_3.0to3.49 = mean(social_3.0to3.49$StartingSalary) # 59114.54
+x_bar_social_3.5to4.0 = mean(social_3.5to4.0$StartingSalary) # 54725.99
+
+### Find SSAB, MSAB
+SSAB = w*((x_bar_bus_2.5to2.99-x_bar_bus-x_bar_2.5to2.99+grand_mean)**2 +
+          (x_bar_eng_2.5to2.99-x_bar_eng-x_bar_2.5to2.99+grand_mean)**2 +
+          (x_bar_social_2.5to2.99-x_bar_social-x_bar_2.5to2.99+grand_mean)**2 +
+          (x_bar_bus_3.0to3.49-x_bar_bus-x_bar_3.0to3.49+grand_mean)**2 +
+          (x_bar_eng_3.0to3.49-x_bar_eng-x_bar_3.0to3.49+grand_mean)**2 +
+          (x_bar_social_3.0to3.49-x_bar_social-x_bar_3.0to3.49+grand_mean)**2 +
+          (x_bar_bus_3.5to4.0-x_bar_bus-x_bar_3.5to4.0+grand_mean)**2 +
+          (x_bar_eng_3.5to4.0-x_bar_eng-x_bar_3.5to4.0+grand_mean)**2 +
+          (x_bar_social_3.5to4.0-x_bar_social-x_bar_3.5to4.0+grand_mean)**2
+          ) # 469514510
+MSAB = SSAB/((c-1)*(r-1)) # 117378628
+
+### Find SSE, MSE
+SSE = SST - (SSA+SSB+SSAB) # 4211238510
+MSE = SSE/(r*c*(w-1)) # 116978848
+
+### a. At the 5% significance level, is there interaction between major and GPA?
+### Hypothesis is below
+### H0: There is no interaction between Major and GPA range
+### Ha: There is interaction between Major and GPA range
+### Find Test Statistics F_df1_df2 = MSAB/MSE, df1=(c-1)*(r-1), df2=r*c*(w-1)
+df1=(c-1)*(r-1) # 4
+df2=r*c*(w-1) # 36
+F_interact = MSAB/MSE # 1.003418
+p_value_interact = pf(F_interact,df1,df2,lower.tail = FALSE) # 0.4185137
+### ANS: p_value > 0.05 (Both manually calculate and anova function), cannot rejected H0. So at 5% significance level we cannot conclude that there is interaction between Major and GPA range.
+
+### b. At the 5% significance level, can you conclude that starting salary differs between majors?
+### H0: Starting salary has not difference between Majors (mu1==mu2==mu3)
+### Ha: Starting salary has difference between Majors
+### Find Test Statistics F_df1_df2 = MSA/MSE, df1=c-1, df2=r*c*(w-1)
+df1=c-1 # 2
+df2=r*c*(w-1) # 36
+F_majors = MSA/MSE # 9.564817
+p_value_majors = pf(F_majors,df1,df2,lower.tail = FALSE) # 0.0004661366
+### ANS: p_value < 0.05 [Both calculated and anova], rejected H0. So at 5% significance level we can conclude that Starting salary is differ between Majors.
+
+### c. At the 5% significance level, can you conclude that starting salary depends on GPA?
+### H0: Starting salary not depend on GPA range (mu1==mu2==mu3)
+### Ha: Starting salary depends on GPA range
+### Find Test Statistics F_df1_df2 = MSB/MSE, df1=r-1, df2=r*c*(w-1)
+df1=r-1 # 2
+df2=r*c*(w-1) # 36
+F_gpa = MSB/MSE # 2.365155
+p_value_gpa = pf(F_gpa,df1,df2,lower.tail = FALSE) # 0.1083742
+### ANS: p_value > 0.05 [Both calculated and anova], cannot rejected H0. So at 5% significance we cannot conclude that Starting salary depends on GPA.
+
+### Checking Starting salary difference between Majors by TukeyHSD function
+TukeyHSD(interaction) 
+
+### Case Study Report 13.1
+### Data
+industries_return = read_csv("data/industries_return.csv")
+View(industries_return)
+
+industries_return_long = industries_return |> 
+  pivot_longer(
+    cols = 2:6,
+    names_to = "Year",
+    values_to = "Return"
+  )
+View(industries_return_long)
+
+### Use aov and anova
+# Two-way interaction
+fit_interaction = aov(data = industries_return_long, Return ~ Year*Industry) 
+# Two-way no interaction
+fit_no_interaction = aov(data = industries_return_long, Return ~ Year+Industry) 
+# One-way
+fit_industry_only = aov(data = industries_return_long, Return ~ Industry) 
+
+anova(fit_interaction)
+anova(fit_no_interaction)
+anova(fit_industry_only)
+
+### Additional Exercise - 52
+### Data
+# Set parameters
+operators <- c("Bus_Driver", "Truck_Driver", "Taxi_Driver", "Train_Operator")
+sample_size <- 30
+avg_salaries <- c(Bus_Driver = 50, Truck_Driver = 60, Taxi_Driver = 45, Train_Operator = 75)
+sd_salaries <- c(Bus_Driver = 5, Truck_Driver = 8, Taxi_Driver = 4, Train_Operator = 6)
+
+# Generate data
+data <- data.frame()
+for (operator in operators) {
+  new_data <- data.frame(
+    Operator = operator,
+    Salary = rnorm(sample_size, avg_salaries[[operator]], sd_salaries[[operator]]) * 1000
+  )
+  data <- rbind(data, new_data)
+}
+
+# View the generated data
+View(data)
+
+### a. Specify the competing hypotheses in order to determine whether the average salaries of the transportation operators differ.
+### H0: The average salaries of the transportation operators not differ (mu1==mu2==mu3==mu4)
+### Ha: The average salaries of the transportation operators differ
+
+### b. At the 5% significance level, what is the conclusion to the test?
+### Use aov and anova function
+fit_salary = aov(data = data, Salary ~ Operator)
+anova(fit_salary)
+
+### Find Test Statistics -> Find F_df1_df2 = MSTR/MSE, df1=c-1, df2=n_T-c
+c=4
+n_T=nrow(data) # 120
+grand_mean = mean(data$Salary) # 58293.92
+n1=n2=n3=n4=30
+
+bus = data |> 
+  filter(Operator=="Bus_Driver")
+truck = data |> 
+  filter(Operator=="Truck_Driver")
+taxi = data |> 
+  filter(Operator=="Taxi_Driver")
+train = data |> 
+  filter(Operator=="Train_Operator")
+
+x_bar_bus = mean(bus$Salary) # 50261.31
+x_bar_truck = mean(truck$Salary) # 60729.34
+x_bar_taxi = mean(taxi$Salary) # 45026.98
+x_bar_train = mean(train$Salary) # 77158.04
+
+sd_bus = sd(bus$Salary) # 4141.876
+sd_truck = sd(truck$Salary) # 7977.307
+sd_taxi = sd(taxi$Salary) # 3937.325
+sd_train = sd(train$Salary) # 5981.019
+
+## Find MSTR
+SSTR = n1*(x_bar_bus-grand_mean)**2 + n2*(x_bar_truck-grand_mean)**2 + n1*(x_bar_taxi-grand_mean)**2 + n1*(x_bar_train-grand_mean)**2 # 18069621784
+MSTR = SSTR/(c-1) # 6023207261
+
+## Find MSE
+SSE = (n1-1)*sd_bus**2 + (n2-1)*sd_truck**2 + (n3-1)*sd_taxi**2 + (n4-1)*sd_train**2 # 3829962955
+MSE = SSE/(n_T-c) # 33016922
+
+## Find F_df1_df2
+df1=c-1 # 3
+df2=n_T-c # 116
+F_df1_df2 = MSTR/MSE # 182.4279
+p_value = pf(F_df1_df2,df1,df2,lower.tail = FALSE) # 0
+
+### ANS: p_value < 0.05, rejected H0. So at 5% significance level we can concluded that the average salaries of the transportation operators differ
+
+### Check difference with TukeyHSD function
+TukeyHSD(fit_salary)
+
+### Check 1 Tukey's HSD confidence interval 95% between Taxi_Driver v Bus_Driver
+q_alpha_df_q = qtukey(0.05,c,n_T-c,lower.tail = FALSE) # 3.686381
+lower_taxi_bus = (x_bar_taxi-x_bar_bus)-q_alpha_df_q*sqrt(MSE/n1) # -9101.635
+upper_taxi_bus = (x_bar_taxi-x_bar_bus)+q_alpha_df_q*sqrt(MSE/n1) # -1367.035
+### 95% confidence interval for Taxi_Driver v Bus_Driver is [-9101.635,-1367.035]
+
+
+
+### Additional Exercise - 68
+### Data
+# Set up parameters
+fuel_types <- c("Gasoline", "Diesel", "Electric")
+hybrid_types <- c("Parallel", "Series")
+num_observations <- 10
+
+# Set baseline mean and standard deviation
+baseline_mean <- 30 # Miles per gallon
+std_dev <- 5
+
+# Create a data frame to store the simulated data
+data <- data.frame(
+  FuelType = rep(fuel_types, times = num_observations * length(hybrid_types)),
+  HybridType = rep(hybrid_types, each = num_observations),
+  FuelConsumption = numeric(length(fuel_types) * num_observations * length(hybrid_types))
+)
+
+# Simulate fuel consumption based on factors
+for (i in 1:nrow(data)) {
+  # Adjust mean based on factors
+  mean_adjustment <- ifelse(data$FuelType[i] == "Electric", 5, 0) +
+    ifelse(data$HybridType[i] == "Parallel", 2, 0)
+  data$FuelConsumption[i] <- rnorm(1, mean = baseline_mean + mean_adjustment, sd = std_dev)
+}
+
+View(data)
+
+### Use aov and anova functions
+fit_fuel_interaction = aov(data = data, FuelConsumption ~ FuelType*HybridType)
+fit_fuel_no_interaction = aov(data = data, FuelConsumption ~ FuelType+HybridType)
+
+anova(fit_fuel_interaction)
+anova(fit_fuel_no_interaction)
+
+### Find Two-way ANOVA with interaction: Test Statistics
+gasoline = data |> 
+  filter(FuelType=="Gasoline")
+diesel = data |> 
+  filter(FuelType=="Diesel")
+electric = data |> 
+  filter(FuelType=="Electric")
+
+parallel = data |> 
+  filter(HybridType=="Parallel")
+series = data |> 
+  filter(HybridType=="Series")
+
+parallel_gasoline = data |> 
+  filter(HybridType=="Parallel" & FuelType=="Gasoline")
+parallel_diesel = data |> 
+  filter(HybridType=="Parallel" & FuelType=="Diesel")
+parallel_electric = data |> 
+  filter(HybridType=="Parallel" & FuelType=="Electric")
+
+series_gasoline = data |> 
+  filter(HybridType=="Series" & FuelType=="Gasoline")
+series_diesel = data |> 
+  filter(HybridType=="Series" & FuelType=="Diesel")
+series_electric = data |> 
+  filter(HybridType=="Series" & FuelType=="Electric")
+
+grand_mean = mean(data$FuelConsumption) # 33.21067
+x_bar_gasoline = mean(gasoline$FuelConsumption) # 32.87818
+x_bar_diesel = mean(diesel$FuelConsumption) # 31.41723
+x_bar_electric = mean(electric$FuelConsumption) # 35.33659
+x_bar_parallel = mean(parallel$FuelConsumption) # 35.24553
+x_bar_series = mean(series$FuelConsumption) # 31.17581
+x_bar_parallel_gasoline = mean(parallel_gasoline$FuelConsumption) # 35.26094
+x_bar_parallel_diesel = mean(parallel_diesel$FuelConsumption) # 33.73072
+x_bar_parallel_electric = mean(parallel_electric$FuelConsumption) # 36.74492
+x_bar_series_gasoline = mean(series_gasoline$FuelConsumption) # 30.49542
+x_bar_series_diesel = mean(series_diesel$FuelConsumption) # 29.10374
+x_bar_series_electric = mean(series_electric$FuelConsumption) # 33.92826
+
+## Find SST
+SST = sum((data$FuelConsumption-grand_mean)**2) # 1506.162
+
+## Find SSA,SSB,MSA,MSB
+w=10
+c=3
+r=2
+SSA = w*r*((x_bar_gasoline-grand_mean)**2 + (x_bar_diesel-grand_mean)**2 + (x_bar_electric-grand_mean)**2) # 156.9303
+SSB = w*c*((x_bar_parallel-grand_mean)**2 + (x_bar_series-grand_mean)**2) # 248.4394
+MSA = SSA/(c-1) # 78.46514
+MSB = SSB/(r-1) # 248.4394
+
+## Find SSAB, MSAB
+SSAB = w*((x_bar_parallel_gasoline-x_bar_gasoline-x_bar_parallel+grand_mean)**2 + 
+          (x_bar_parallel_diesel-x_bar_diesel-x_bar_parallel+grand_mean)**2 +
+          (x_bar_parallel_electric-x_bar_electric-x_bar_parallel+grand_mean)**2 +
+          (x_bar_series_gasoline-x_bar_gasoline-x_bar_series+grand_mean)**2 +
+          (x_bar_series_diesel-x_bar_diesel-x_bar_series+grand_mean)**2 +
+          (x_bar_series_electric-x_bar_electric-x_bar_series+grand_mean)**2) # 11.82412
+MSAB = SSAB/((c-1)*(r-1)) # 5.91206
+
+## Find SSE, MSE
+SSE = SST - (SSA+SSB+SSAB) # 1088.968
+MSE = SSE/(r*c*(w-1)) # 20.16607
+
+### a. At the 5% significance level, is there interaction between fuel type and hybrid type?
+### H0: There is no interaction between fuel type and hybrid type
+### Ha: There is interaction between fuel type and hybrid type
+### Find F_interaction = MSAB/MSE, df1=(c-1)*(r-1), df2=r*c*(w-1)
+df1=(c-1)*(r-1) # 2
+df2=r*c*(w-1) # 54
+F_interaction = MSAB/MSE #  0.2931687
+p_value_interaction = pf(F_interaction,df1,df2,lower.tail = FALSE) # 0.7470759
+### ANS: p_value > 0.05, so cannot rejected H0. So at 5% significance level we cannot concluded that there is interaction between fuel type and hybrid type.
+
+### b. At the 5% significance level, can you conclude that average fuel consumption differs by fuel type?
+### H0: There is no difference of average Fuel Consumption between Fuel type (mu1==mu2==mu3)
+### Ha: There is difference of average Fuel Consumption between Fuel type
+### Find F_fuel = MSA/MSE, df1=c-1, df2=r*c*(w-1)
+df1=c-1 # 2
+df2=r*c*(w-1) # 54
+F_fuel = MSA/MSE # 3.890948
+p_value_fuel = pf(F_fuel,df1,df2,lower.tail = FALSE) # 0.02638628
+### ANS: p_value < 0.05, rejected H0. So at 5% significance level we can conclude that there is difference of average Fuel Consumption between Fuel type.
+
+### c. At the 5% significance level, can you conclude that average fuel consumption differs by type of hybrid?
+### H0: There is no difference of average Fuel Consumption between Hybrid Type (mu1==mu2)
+### Ha: There is difference of average Fuel Consumption between Hybrid Type
+### Find F_hybrid = MSB/MSE, df1=r-1, df2=r*c*(w-1)
+df1=r-1 # 1
+df2=r*c*(w-1) # 54
+F_hybrid = MSB/MSE # 12.31967
+p_value_hybrid = pf(F_hybrid,df1,df2,lower.tail = FALSE) # 0.0009127799
+### ANS: p_value < 0.05, rejected H0. So at 5% significance level we can conclude that there is difference of average Fuel Consumption between Hybrid Type.
+
+### Checking difference with TukeyHSD function
+TukeyHSD(fit_fuel_interaction)
+TukeyHSD(fit_fuel_no_interaction)
+
